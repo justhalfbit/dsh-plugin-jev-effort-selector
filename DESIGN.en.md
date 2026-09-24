@@ -276,7 +276,7 @@ Hiding entirely when the global switch is off dates from 0.2.4: the problem then
 
 The old trigger folded `request/header`, which looked like the obvious choice, but the harness writes that event **only when the config changes**. When Jev picks the same rung twice running, the second turn has no header, the chip does not refresh, and it keeps showing the previous turn's confidence and reason. And "go on after an interrupt, keep the effort" is precisely a same-rung case. Replaying a real test session: 9 of 35 turns had no `request/header` — every one of them would have shown a stale chip; with `jevTurn`, every turn triggers exactly once.
 
-**Tooltips** answer "who decided, and did the rule step in". The tooltip appears the moment the pointer lands on the chip, with no hover pause: it is DSH's own tooltip bubble (the one the message like buttons use), not the browser's native `title`, which waits before showing; it stands down while the popover is open, since the popover states the reason too. Through 0.3.16 the chip used `title`.
+**Tooltips** answer "who decided, and did the rule step in". The tooltip appears after the pointer rests on the chip for 0.4 s: it is DSH's own tooltip bubble (the one the message like buttons use; 0.4 s is the delay the stock agent-preset cards use), quicker than the browser's native `title` yet not popping up on every pass of the pointer; it stands down while the popover is open, since the popover states the reason too. Through 0.3.16 the chip used `title`.
 
 | Case | Chip | Tooltip |
 |---|---|---|
