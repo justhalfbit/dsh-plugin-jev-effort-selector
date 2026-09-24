@@ -23,7 +23,7 @@ The decision appears as a chip beside the composer's model selector.
 - 🎚️ **Per-model ladders**: reads the reasoning levels each model advertises and takes the lowest / `medium` / `high`; a model that cannot switch thinking off never receives `off`, and `max` / `xhigh` are never spent automatically
 - 🧭 **Context envelope**: tells Jev the facts of the previous turn — the effort used, what the user said, how the assistant left off, how much work happened, whether it finished. About 500–800 tokens; never the conversation history
 - 🔁 **Two questions, one call**: how much depth this message needs, and whether it continues the previous task. The second is what separates "what time is it" from "go on" — equally short, but only one inherits the depth of work in flight
-- ⚓ **One hard rule**: work still in flight (the turn did not complete, or todos are in progress) plus a continuing message keeps at least the previous effort. Everything else is Jev's call — "what time is it" after a heavy refactor drops straight to `off`
+- ⚓ **One hard rule**: work still in flight (the turn did not complete, or its todo list still has unfinished items) plus a continuing message keeps at least the previous effort. Everything else is Jev's call — "what time is it" after a heavy refactor drops straight to `off`
 - 🎯 **One decision per turn**: every step of a turn, and every retry, runs at the same effort; Jev is asked once per turn
 - ✋ **Manual picks win**: change the effort in the selector and Jev sits out that turn
 - 💾 **Survives restarts**: the envelope's memory comes from the session log, not plugin memory. After a restart or a long idle, "go on" still knows what the previous turn was doing
@@ -154,12 +154,12 @@ Previous turn:
 - assistant ended with: "…fixed both sessions. Want me to scan the remaining 22 for the same framing fault?"
 - activity: 14 steps, 9 tool calls
 - previous turn outcome: completed
-- open tasks: 0 in progress
+- unfinished todos: 0
 ```
 
 then the current message. No conversation history, no tool output, no code. User messages are cut at 300 characters, the assistant's tail at 500; the whole envelope lands around 500–800 tokens.
 
-Every fact comes **from the harness's own session log** (`user/message`, `assistant/message`, `step/start`, `tool/call`, `turn/end`, `request/header`, plus the built-in `todos` projection). A host-side projection folds them; the plugin stores nothing — so the first turn after a restart sends the very same envelope it would have sent before.
+Every fact comes **from the harness's own session log** (`user/message`, `assistant/message`, `step/start`, `tool/call`, `todo/write`, `turn/end`, `request/header`). A host-side projection folds them; the plugin stores nothing — so the first turn after a restart sends the very same envelope it would have sent before.
 
 ## Two questions, one rule
 
@@ -172,7 +172,7 @@ The plugin then does exactly one thing with the answers:
 
 > If it `continues`, **and** the previous turn's work is not finished, never go below the previous effort. Otherwise, Jev's rung stands.
 
-"Not finished" is either of: the previous turn did not end normally (aborted, error, max tokens), or the todo list has items in progress.
+"Not finished" is either of: the previous turn did not end normally (aborted, error, max tokens), or the todo list the previous turn left behind still has unfinished items (pending or in progress).
 
 Measured:
 

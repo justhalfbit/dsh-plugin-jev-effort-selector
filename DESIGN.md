@@ -86,7 +86,7 @@ Previous turn:
 - assistant ended with: "…已修复两个会话。要我把剩下 22 个会话也全部扫一遍分帧吗？"
 - activity: 14 steps, 9 tool calls
 - previous turn outcome: completed
-- open tasks: 0 in progress
+- unfinished todos: 0
 ```
 
 每一行的作用：
@@ -98,7 +98,7 @@ Previous turn:
 | `assistant ended with` | **最值钱的一行**。"扫"、"好"、"删掉"这类一个字的回复，含义完全取决于助手刚问了什么。没有这行，Jev 看到"扫"只能当 trivial |
 | `activity` | 上一轮是重活还是闲聊 |
 | `previous turn outcome` | 上一轮是否正常结束。被打断、报错、超长度都算"未完成" |
-| `open tasks` | 有进行中的待办，说明工作没完 |
+| `unfinished todos` | 上一轮结束时待办里还有没完成的项（未开始或进行中），说明工作没完 |
 
 ### 大小
 
@@ -116,7 +116,9 @@ Previous turn:
 | `step/start` / `tool/call` | 活动量 |
 | `turn/end` | `reason.kind`：`completed` / `aborted` / `error` / `max-tokens` / `blocked` |
 | `request/header` | 实际使用的等级与路由 |
-| `todos` 投影（harness 内置） | 进行中待办数 |
+| `todo/write` | 这一轮最后一次写的待办里，没完成的项数 |
+
+待办数**不能**读 harness 内置的 `todos` 投影：它在每个 `turn/start` 清空，而 `turn/start` 写进日志早于 `agent/request`。决策那一刻它永远是空的——0.3.11 及以前就是这样读的，这个判据因此从未生效。0.3.12 改为在插件自己的投影里折 `todo/write`，每轮记下它结束时留下的待办；只数"进行中"也不够，最常见的"做完一步、问要不要继续"留下的是"未开始"的项，所以两者都算。
 
 一个折叠细节：`request/header` **只在 config 变化时追加**。所以某一轮可能没有这个事件，它跑在上一轮的 header 值上。折叠时新轮次必须从上一轮**继承** `effort` 和 `route`，否则信封里会出现 `effort: null`。这是回放真实日志时发现的。
 
@@ -149,7 +151,7 @@ Jev 回来两个答案后，插件只做一件事：
 
 > **如果 `relation === continues`，且上一轮的活还没干完，那就不低于上一轮的等级。其他一切情况，Jev 说几档就几档。**
 
-"活没干完"两个判据任一成立：`previous turn outcome ≠ completed`，或 `open tasks > 0`。
+"活没干完"两个判据任一成立：`previous turn outcome ≠ completed`，或 `unfinished todos > 0`。
 
 三个变量，四格，穷尽：
 

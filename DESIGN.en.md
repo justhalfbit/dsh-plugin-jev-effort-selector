@@ -86,7 +86,7 @@ Previous turn:
 - assistant ended with: "…fixed both sessions. Want me to scan the remaining 22 for the same framing fault?"
 - activity: 14 steps, 9 tool calls
 - previous turn outcome: completed
-- open tasks: 0 in progress
+- unfinished todos: 0
 ```
 
 What each line buys:
@@ -98,7 +98,7 @@ What each line buys:
 | `assistant ended with` | **the most valuable line.** One-word replies — "scan", "ok", "delete it" — mean whatever the assistant just asked. Without it, "scan" can only read as trivial |
 | `activity` | heavy work or small talk |
 | `previous turn outcome` | whether the turn ended normally; aborted, error, and max-tokens all count as "not completed" |
-| `open tasks` | in-progress todos mean the work is not done |
+| `unfinished todos` | items still pending or in progress when the previous turn ended mean the work is not done |
 
 ### Size
 
@@ -116,7 +116,9 @@ Every fact comes from events the harness writes itself:
 | `step/start` / `tool/call` | activity counts |
 | `turn/end` | `reason.kind`: `completed` / `aborted` / `error` / `max-tokens` / `blocked` |
 | `request/header` | the effort and route actually used |
-| the built-in `todos` projection | in-progress count |
+| `todo/write` | how many items of the turn's last todo list were not completed |
+
+The count must **not** come from the harness's built-in `todos` projection: it is cleared at every `turn/start`, and `turn/start` is committed before `agent/request` runs. At decision time it is always empty — that is how 0.3.11 and earlier read it, so this criterion never fired. 0.3.12 folds `todo/write` in the plugin's own projection instead, recording what each turn left behind. Counting only in-progress items would not be enough either: the most common "did one step, shall I go on?" leaves the next item *pending*, so both count.
 
 One folding subtlety: `request/header` is appended **only when the config changes**. A turn may therefore have no header event at all — it ran at the previous header's values. The fold must **inherit** `effort` and `route` from the turn before, or the envelope reports `effort: null`. This surfaced when replaying real logs.
 
@@ -149,7 +151,7 @@ With both answers in hand the plugin does exactly one thing:
 
 > **If `relation === continues` and the previous turn's work is not finished, never go below the previous effort. In every other case, Jev's rung stands.**
 
-"Not finished" is either of: `previous turn outcome ≠ completed`, or `open tasks > 0`.
+"Not finished" is either of: `previous turn outcome ≠ completed`, or `unfinished todos > 0`.
 
 Three variables, four cells, exhaustive:
 
