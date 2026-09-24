@@ -262,9 +262,11 @@ Now the chip lives **exactly as long as the decision it describes**. The cost: a
 | Global switch | Session switch | Decision | Shows |
 |---|---|---|---|
 | off | — | — | hidden |
-| on | off | — | muted `Jev off`, clickable |
+| on | off | — | `Jev off`, clickable |
 | on | on | none | hidden |
 | on | on | some | `Jev · High · 87%` |
+
+**Style**: in every state `Jev` is styled like the model id in the model selector beside it, and the word after it (an effort or `off`) like the selector's effort — except that efforts keep their colour (Off/Minimal/Low grey, Medium amber, higher red). `off` takes the effort grey. There is no dimmed whole-chip state: the word `off` already says Jev sat out (through 0.3.15 the whole chip went grey).
 
 Hiding entirely when the global switch is off dates from 0.2.4: the problem then was a chip that kept saying "Thinking · High" with Jev off — restating the model selector beside it and implying Jev was still choosing.
 
@@ -281,10 +283,10 @@ The old trigger folded `request/header`, which looked like the obvious choice, b
 | Jev's own call (new topic or continuation alike) | `Jev · High · 87%` | decided by Jev |
 | The rule blocked a downgrade | `Jev · High · 76%` | continuing unfinished work, keeping the previous effort |
 | You picked by hand | `Jev · Low` | manual pick, Jev sat out |
-| Jev timed out | muted `Jev · Medium` | Jev did not answer (timeout); current effort kept |
-| The call failed | muted `Jev · Medium` | Jev call failed; current effort kept |
-| No key | muted `Jev · Medium` | no Jev key configured; current effort kept |
-| No API address | muted `Jev · Medium` | no Jev API address configured; current effort kept |
+| Jev timed out | `Jev off` | Jev did not answer (timeout); current effort kept |
+| The call failed | `Jev off` | Jev call failed; current effort kept |
+| No key | `Jev off` | no Jev key configured; current effort kept |
+| No API address | `Jev off` | no Jev API address configured; current effort kept |
 
 The last four: see [§11](#11-failure-behaviour).
 
@@ -301,7 +303,7 @@ Clicking the chip opens a popover with one switch: "enable Jev for this session"
 - Lives in Host memory, keyed by `sessionId`, not persisted
 - A decision consults the session override first, then the global setting
 - **Available only while the global switch is on.** The global switch is the master; a session override only makes sense beneath it, and "master off but one session secretly running" would confuse
-- With the session switched off the chip stays visible as a muted `Jev off` — otherwise there is nothing left to click
+- With the session switched off the chip stays visible as `Jev off` — otherwise there is nothing left to click
 - A restart clears memory and returns to the global setting
 - Switched off, the session stays at Jev's last pick rather than returning to your earlier manual choice (see [§6, the model selector follows Jev](#the-model-selector-follows-jev))
 
@@ -357,7 +359,7 @@ In every case below the plugin **passes the harness's config through untouched**
 
 ### Failures show on the chip
 
-Failures fall into four kinds. Each writes a decision record; the chip goes muted, drops the confidence, and the tooltip names the cause:
+Failures fall into four kinds. Each writes a decision record; the chip shows `Jev off` (the same look as a session switched off), and the tooltip names the cause:
 
 | Failure | reason | Covers |
 |---|---|---|
@@ -366,7 +368,7 @@ Failures fall into four kinds. Each writes a decision record; the chip goes mute
 | no key | `no-key` | neither the literal nor the credential reference resolves |
 | no API address | `no-url` | `apiUrl` is empty. It deliberately has no default: which service to connect to is the user's explicit choice |
 
-The effort in the record is **the one actually sent**, not Jev's — Jev chose nothing this turn. Muted means exactly that: this effort was not decided by Jev this turn. The next successful turn restores the normal style.
+The effort in the record is **the one actually sent**, not Jev's — Jev chose nothing this turn. So the chip no longer shows it: the model selector beside it already shows the effort in force, and repeating it on the chip read as Jev's pick (through 0.3.15 the chip showed an all-grey `Jev · Medium`). The next successful turn restores the normal style.
 
 Through 0.3.2 a failure recorded nothing, so the chip kept showing the last success: the effort happened to be right (the harness stays at the last effort), but the confidence and "decided by Jev" were false, and nothing told you Jev had failed beyond a few seconds' wait.
 
@@ -419,5 +421,5 @@ Recorded so they are not walked again.
 ## 13. Known gaps
 
 - **Jev call latency**: 1.5–2.4 s serially ahead of every turn's first step. Could overlap with request assembly; not done.
-- **An entry point when the global switch is off**: today the chip disappears entirely, leaving nowhere to see or re-enable it. Could show a muted `Jev off` that points to Settings.
+- **An entry point when the global switch is off**: today the chip disappears entirely, leaving nowhere to see or re-enable it. Could show `Jev off` that points to Settings.
 - **Turns where Jev does not apply**: with no user text, or on a model without reasoning levels, the chip still shows the previous decision (see [§11](#cases-not-shown-as-failures)). The latter could simply hide the chip.
