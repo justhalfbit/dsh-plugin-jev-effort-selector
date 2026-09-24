@@ -26,6 +26,7 @@ The decision appears as a chip beside the composer's model selector.
 - ⚓ **One hard rule**: work still in flight (the turn did not complete, or its todo list still has unfinished items) plus a continuing message keeps at least the previous effort. Everything else is Jev's call — "what time is it" after a heavy refactor drops straight to `off`
 - 🎯 **One decision per turn**: every step of a turn, and every retry, runs at the same effort; Jev is asked once per turn
 - ✋ **Manual picks win**: change the effort in the selector and Jev sits out that turn
+- 🧩 **Subagents are left alone**: Jev picks the depth for what *you* send. A subagent runs at the effort its parent agent chose or passed down; Jev is not consulted and no extra call is made
 - 💾 **Survives restarts**: the envelope's memory comes from the session log, not plugin memory. After a restart or a long idle, "go on" still knows what the previous turn was doing
 - ⬆️ **Ties break upward**: below the confidence threshold, the stronger of the two most likely rungs wins — over-thinking costs a few tokens, under-thinking may cost the answer
 - 🛡️ **Silent degradation**: a missing key, network failure, timeout, malformed reply, or unsupported level all leave the caller's effort untouched, without an error or a stall

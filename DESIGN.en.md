@@ -195,6 +195,14 @@ Now the step-1 decision is cached for the turn (`turnDecisions: sessionId → {t
 
 **Retries reuse it too.** When an LLM request fails, the harness retries within the same step, and every attempt re-runs `agent/request`. Up to 0.3.1 a retry of step 1 asked Jev again: another call and 1–2 more seconds; possibly a different rung, so one step went out at two efforts; and since a retry appends no new `user/message`, the chip never refreshed and disagreed with what was used. Now any request in a turn that already has a decision reuses it, whatever the step or attempt.
 
+### Subagents are left alone
+
+The plugin sits on the host, so every agent's requests pass through it — including the subagents a parent agent starts. Up to 0.3.12 every subagent turn asked Jev too and took its answer: the effort the parent agent chose for the subagent (or passed down to it) was silently overwritten; switching Jev off in a conversation did not stop it from steering that conversation's subagents; and each subagent turn paid one more 1–2 s call.
+
+Jev judges how much depth *the message you sent* needs. A subagent's task is written by the parent agent, and its depth is the parent's call. From 0.3.13 subagent sessions pass straight through — Jev is not asked and nothing is recorded.
+
+The only reliable marker is the session header: DSH hands a subagent its task as a `source.kind === 'user'` message, so the message cannot tell. dsh-subagent stamps `origin: 'subagent'` on the child's header, and that is the one test used. `parentSession` is **not** the test: a conversation the user forks from the UI carries it too, and that conversation is the user's own.
+
 ---
 
 ## 6. Detecting a manual pick
@@ -372,6 +380,7 @@ These are not Jev failing but Jev not applying this turn; the plugin writes no r
 
 - `agent/pre-step` captured no current message (an empty batch, plugin-only injections — e.g. a background-job notice woke the session)
 - the current model has no reasoning levels, or the adapter cannot describe it right now
+- a subagent's session (see [§5](#5-one-decision-per-turn))
 
 `seenSelections` updates regardless, because it tracks the selector, not Jev.
 
