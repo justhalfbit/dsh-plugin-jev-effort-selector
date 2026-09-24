@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-jev-effort-selector",
-  "version": "0.3.13",
+  "version": "0.3.14",
   "description": "Let the Jev System One model pick the reasoning effort for every message, per model and per session.",
   "license": "MIT",
   "repository": {
