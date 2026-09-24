@@ -57,12 +57,6 @@ After the restart, open the settings page and fill in the endpoint and key. Wher
 
 Uninstall with `dsh plugin --profile web remove dsh-plugin-jev-effort-selector`, then restart. Your configuration stays behind (0.1.5: the `jev-effort-selector` section of `~/.dsh/settings.yaml`; 0.1.7+: the `id: jev-effort-selector` entry of `~/.dsh/profiles/web/cordis.patch.yml`) and can be deleted by hand.
 
-### Upgrading DSH from 0.1.5 to 0.1.7
-
-0.1.7 no longer uses `settings.yaml`. On its first start it moves every section of `settings.yaml` into the profile's `cordis.patch.yml` **once**, then renames the file to `settings.yaml.imported`.
-
-**Update this plugin to 0.3.10 or later first, then upgrade DSH.** Jev's settings then move over automatically. The other way round, the old plugin does not yet speak the new settings mechanism and Jev's section fails to import: the values are still in `settings.yaml.imported`, nothing is lost, but you fill them in once more on the new page. The API key lives in the credentials service and is unaffected.
-
 For local development: clone the repository, run `pnpm install`, then `dsh plugin --profile web add link:/absolute/path/dsh-plugin-jev-effort-selector`.
 
 ### Interface support

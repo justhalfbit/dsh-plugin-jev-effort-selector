@@ -57,12 +57,6 @@ dsh plugin --profile web add github:justhalfbit/dsh-plugin-jev-effort-selector
 
 卸载：`dsh plugin --profile web remove dsh-plugin-jev-effort-selector`，重启生效；配置会保留（0.1.5 在 `~/.dsh/settings.yaml` 的 `jev-effort-selector` 段落，0.1.7 起在 `~/.dsh/profiles/web/cordis.patch.yml` 里 `id: jev-effort-selector` 的条目），可手动删除。
 
-### 从 DSH 0.1.5 升级到 0.1.7
-
-0.1.7 不再使用 `settings.yaml`。它第一次启动时会把 `settings.yaml` 里的各段设置**搬一次**到 profile 的 `cordis.patch.yml`，然后把原文件改名为 `settings.yaml.imported`。
-
-**请先把本插件更新到 0.3.10 或更高，再升级 DSH。** 这样 Jev 的设置会被自动搬过去。反过来的话，搬迁时旧版插件还不认识新的设置方式，Jev 这一段会搬迁失败：原值仍在 `settings.yaml.imported` 里，不会丢，但需要在新的设置页里重新填一次。API 密钥存在凭据服务里，不受影响。
-
 本地开发安装：克隆本仓库后 `pnpm install`，再 `dsh plugin --profile web add link:/绝对路径/dsh-plugin-jev-effort-selector`。
 
 ### 界面支持
