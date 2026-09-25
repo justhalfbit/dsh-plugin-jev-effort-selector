@@ -17,6 +17,9 @@
     "effort-selector"
   ],
   "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
